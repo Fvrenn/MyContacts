@@ -7,11 +7,62 @@ servers:
 paths:
   /auth/login:
     post:
+      summary: Permet de s'authentifier.
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  password:
+                    type: string
+                example:
+                  username: Tim
+                  password: Azerty
   /auth/register:
     post:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  username:
+                    type: string
+                  password:
+                    type: string
+                example:
+                  email: tim@tim.com
+                  username: Tim
+                  password: Azerty
+  /contact:
+    post:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  phonenumber:
+                    type: number
+                  adresse:
+                    type: string
+                example:
+                  email: tim@tim.com
+                  phonenumber: 07 23 13 59 83
+                  adresse: 3 rue du truc
+
+
+
