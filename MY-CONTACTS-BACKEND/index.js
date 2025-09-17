@@ -1,11 +1,15 @@
 const express = require('express')
 const app = express()
-const port = 3000
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+const PORT = process.env.PORT || 3000;
+const mongoose = require('mongoose');
+const authRoutes = require('./routes/auth');
+mongoose.connect('mongodb+srv://Timothe:E764A6F1B3@cluster0.y6mu7.mongodb.net/MyContacts', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
 })
+app.use(express.json());
+app.use('/auth', authRoutes);
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}`)
 })
