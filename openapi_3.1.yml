@@ -10,78 +10,196 @@ paths:
       summary: Permet de s'authentifier.
       responses:
         '200':
-          description: OK
+          description: Authentification réussie
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  username:
-                    type: string
-                  password:
+                  token:
                     type: string
                 example:
-                  username: Tim
-                  password: Azerty
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '401':
+          description: Échec de l'authentification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /auth/register:
     post:
+      summary: Permet de s'inscrire.
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Inscription réussie
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  email:
-                    type: string
-                  username:
-                    type: string
-                  password:
+                  message:
                     type: string
                 example:
-                  email: tim@tim.com
-                  username: Tim
-                  password: Azerty
+                  message: Inscription réussite
+        '500':
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /contact:
     post:
+      summary: Ajouter un contact
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Contact ajouté
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  username:
-                    type: string
-                  phonenumber:
-                    type: string
-                  adresse:
+                  message:
                     type: string
                 example:
-                  username: tim
-                  phonenumber: 07 23 13 59 83
-                  adresse: 3 rue du truc
+                  message: Contact ajoutée
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     get:
+      summary: Récupérer les contacts de l'utilisateur
       responses:
         '200':
-          description: OK
+          description: Liste des contacts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /contact/{id}:
+    patch:
+      summary: Modifier un contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contact modifié
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  username:
+                  message:
                     type: string
-                  phonenumber:
-                    type: string
-                  adresse:
+                  contact:
+                    $ref: '#/components/schemas/Contact'
+                example:
+                  message: Contact modifié avec succès
+                  contact:
+                    username: tim
+                    phonenumber: 07 23 13 59 83
+                    adresse: 3 rue du truc
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Accès refusé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Supprimer un contact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contact supprimé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
                     type: string
                 example:
-                  username: tim
-                  phonenumber: 07 23 13 59 83
-                  adresse: 3 rue du truc
-
-
-
+                  message: Contact supprimé avec succès
+        '401':
+          description: Non authentifié
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Accès refusé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erreur serveur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Contact:
+      type: object
+      properties:
+        username:
+          type: string
+        phonenumber:
+          type: string
+        adresse:
+          type: string
+        ownerEmail:
+          type: string
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+      example:
+        error: "Accès refusé"
+        code: "FORBIDDEN"

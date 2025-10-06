@@ -6,10 +6,13 @@ const PORT = process.env.PORT || 3000;
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const contact = require('./routes/contact');
+const me = require('./routes/me');
+
 mongoose.connect(process.env.DATABASE_URL);
 app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/', contact);
+app.use('/', me);
 
 app.get('/', (req, res) => {
   res.send('Hello World!')

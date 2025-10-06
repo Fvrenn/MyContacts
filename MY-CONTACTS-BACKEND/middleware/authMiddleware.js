@@ -23,6 +23,8 @@ function verifyAcces(encryptedTooken, contact) {
   const email = decodeToken(encryptedTooken);
   if (email == contact.ownerEmail) {
     return true;
+  }else{
+    return false;
   }
 }
 
