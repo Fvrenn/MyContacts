@@ -29,7 +29,7 @@ router.post("/login", async (req, res) => {
     if (!passwordMatch) {
       return res.status(401).json({ error: "Echec de l'authentification" });
     }
-    const token = jwt.sign({ userId: user._id }, "clef-secrete", {
+    const token = jwt.sign({ email: user.email }, "clef-secrete", {
       expiresIn: "1h",
     });
     res.status(200).json({ token });

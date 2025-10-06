@@ -53,14 +53,33 @@ paths:
               schema:
                 type: object
                 properties:
-                  email:
+                  username:
                     type: string
                   phonenumber:
-                    type: number
+                    type: string
                   adresse:
                     type: string
                 example:
-                  email: tim@tim.com
+                  username: tim
+                  phonenumber: 07 23 13 59 83
+                  adresse: 3 rue du truc
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                  phonenumber:
+                    type: string
+                  adresse:
+                    type: string
+                example:
+                  username: tim
                   phonenumber: 07 23 13 59 83
                   adresse: 3 rue du truc
 

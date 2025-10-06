@@ -5,13 +5,17 @@ const contactSchema = new mongoose.Schema({
  required: true,
  },
  phonenumber: {
- type: Number,
+ type: String,
  required: true,
  unique: true,
  },
  adresse: {
  type: String,
  required: false,
+ },
+ ownerEmail: {
+    type: String,
+    require: true
  },
  createdAt: {
  type: Date,
