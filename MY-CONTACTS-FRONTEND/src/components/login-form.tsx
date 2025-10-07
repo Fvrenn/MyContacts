@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import AuthService from "../service/auth.service";
+import { useNavigate } from "react-router";
 
 interface LoginFormElements extends HTMLFormControlsCollection {
   usernameInput: HTMLInputElement;
@@ -29,6 +30,8 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const navigate = useNavigate();
+
   async function handleLogin(event: React.FormEvent<LoginFormElement>) {
     event.preventDefault();
     const username = event.currentTarget.elements.usernameInput.value;
@@ -37,6 +40,7 @@ export function LoginForm({
     try {
       const response = await AuthService.login(username, password);
       console.log("login success:", response);
+      navigate(`/`);
     } catch (err: any) {
       console.error("login error:", err);
       alert(

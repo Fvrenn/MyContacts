@@ -7,13 +7,12 @@ class AuthService {
     return axios
       .post(API_URL + "auth/login", {
         username,
-        password
+        password,
       })
-      .then(response => {
-        if (response.data.accessToken) {
-          localStorage.setItem("user", JSON.stringify(response.data));
+      .then((response) => {
+        if (response.data.token) {
+          localStorage.setItem("user", response.data.token);
         }
-
         return response.data;
       });
   }
@@ -26,15 +25,8 @@ class AuthService {
     return axios.post(API_URL + "auth/register", {
       username,
       email,
-      password
+      password,
     });
-  }
-
-  getCurrentUser() {
-    const userStr = localStorage.getItem("user");
-    if (userStr) return JSON.parse(userStr);
-
-    return null;
   }
 }
 
