@@ -1,25 +1,49 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Link } from "react-router-dom"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
+import AuthService from "../service/auth.service";
+
+interface LoginFormElements extends HTMLFormControlsCollection {
+  usernameInput: HTMLInputElement;
+  passwordInput: HTMLInputElement;
+}
+interface LoginFormElement extends HTMLFormElement {
+  readonly elements: LoginFormElements;
+}
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  async function handleLogin(event: React.FormEvent<LoginFormElement>) {
+    event.preventDefault();
+    const username = event.currentTarget.elements.usernameInput.value;
+    const password = event.currentTarget.elements.passwordInput.value;
+
+    try {
+      const response = await AuthService.login(username, password);
+      console.log("login success:", response);
+    } catch (err: any) {
+      console.error("login error:", err);
+      alert(
+        err?.response?.data?.message || err?.message || "Erreur lors du login"
+      );
+    }
+  }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -30,15 +54,15 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleLogin}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="username">Username</FieldLabel>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  name="email"
+                  id="usernameInput"
+                  name="usernameInput"
+                  type="text"
+                  placeholder="Username"
                   required
                 />
               </Field>
@@ -52,7 +76,12 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="passwordInput"
+                  name="passwordInput"
+                  type="password"
+                  required
+                />
               </Field>
               <Field>
                 <Button type="submit">Login</Button>
@@ -65,5 +94,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
