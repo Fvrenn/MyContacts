@@ -30,6 +30,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contactToEdit, setContactToEdit] = useState<Contact | null>(null);
 
   useEffect(() => {
@@ -69,13 +70,27 @@ export default function Home() {
     const phonenumber = event.currentTarget.elements.phoneInput.value;
     const adresse = event.currentTarget.elements.adresseInput.value;
     try {
-      await UserService.editContact(contactToEdit._id, username, phonenumber, adresse);
+      await UserService.editContact(
+        contactToEdit._id,
+        username,
+        phonenumber,
+        adresse
+      );
       const response = await UserService.getAllContact();
       setContacts(response.data);
       setEditDialogOpen(false);
       setContactToEdit(null);
     } catch (err) {
       console.error("Erreur lors de la modification du contact", err);
+    }
+  }
+
+  async function handlDeleteContact() {
+    if (!contactToEdit) return;
+    try {
+      await UserService.deleteContact(contactToEdit._id);
+    } catch (err) {
+      console.error("Erreur lors de la supression du contact", err);
     }
   }
 
@@ -109,7 +124,9 @@ export default function Home() {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button ref={closeButtonRef} variant="outline">Cancel</Button>
+                <Button ref={closeButtonRef} variant="outline">
+                  Cancel
+                </Button>
               </DialogClose>
               <Button type="submit">Add</Button>
             </DialogFooter>
@@ -117,7 +134,7 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog pour éditer */}
+      {/* Dialog pour Suprimer */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -156,9 +173,34 @@ export default function Home() {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button ref={closeButtonRef} variant="outline">Cancel</Button>
+                <Button ref={closeButtonRef} variant="outline">
+                  Cancel
+                </Button>
               </DialogClose>
               <Button type="submit">Save</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      
+      {/* Dialog pour éditer */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Suprimer un contact</DialogTitle>
+            <DialogDescription>
+              Suprimer le contact
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handlDeleteContact}>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button ref={closeButtonRef} variant="outline">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit">Suprimer</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -191,7 +233,14 @@ export default function Home() {
               >
                 Edit
               </Button>
-              <Button>supprimer</Button>
+              <Button
+                onClick={() => {
+                  setContactToEdit(contact);
+                  setDeleteDialogOpen(true);
+                }}
+              >
+                supprimer
+              </Button>
             </li>
           ))}
         </ul>

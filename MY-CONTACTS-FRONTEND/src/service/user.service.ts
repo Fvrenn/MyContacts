@@ -24,6 +24,13 @@ class UserService {
     );
   }
 
+  deleteContact(id: string) {
+    return axios.delete(
+      API_URL + "contact/" + id,
+      { headers: authHeader() }
+    );
+  }
+
 }
 
 export default new UserService();
