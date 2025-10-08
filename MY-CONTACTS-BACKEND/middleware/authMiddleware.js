@@ -1,11 +1,12 @@
 const jwt = require("jsonwebtoken");
 const Contact = require("../model/contact.model");
+const dotenv = require("dotenv");
 
 function verifyToken(req, res, next) {
   const token = req.header("Authorization")?.replace("Bearer ", "");
   if (!token) return res.status(401).json({ error: "Accès refuser" });
   try {
-    const decoded = jwt.verify(token, "clef-secrete");
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
     req.email = decoded.email;
     next();
   } catch (error) {
@@ -15,7 +16,7 @@ function verifyToken(req, res, next) {
 
 function decodeToken(encryptedTooken) {
   const token = encryptedTooken.replace("Bearer ", "");
-  const decoded = jwt.verify(token, "clef-secrete");
+  const decoded = jwt.verify(token, process.env.SECRET_KEY);
   return decoded.email;
 }
 
