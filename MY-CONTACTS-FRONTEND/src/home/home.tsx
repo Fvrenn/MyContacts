@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import UserService from "../service/user.service";
 import type { Contact } from "@/lib/interface/contact.interface";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -10,10 +9,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface AddContactFormElements extends HTMLFormControlsCollection {
   usernameInput: HTMLInputElement;
@@ -84,11 +91,6 @@ export default function Home() {
     setContactToEdit(null);
   }
 
-  function openAddDialog() {
-    setContactToEdit(null);
-    setFormDialogOpen(true);
-  }
-
   function openEditDialog(contact: Contact) {
     setContactToEdit(contact);
     setFormDialogOpen(true);
@@ -105,13 +107,16 @@ export default function Home() {
 
   return (
     <div>
-      {/* Dialog pour Suprimer */}
+      {/* Bouton Ajouter un contact */}
+      <div className="my-4">
+        <Button variant="outline" onClick={() => setFormDialogOpen(true)}>
+          Ajouter un contact
+        </Button>
+      </div>
+
+      <Separator className="my-4" />
+      {/* Formulaire d'ajout/modification */}
       <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" onClick={openAddDialog}>
-            Ajouter un contact
-          </Button>
-        </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
@@ -123,35 +128,33 @@ export default function Home() {
                 : "Remplissez les informations pour ajouter un contact"}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleFormSubmit}>
-            <div className="grid gap-4">
-              <div className="grid gap-3">
-                <Label htmlFor="username-1">Username</Label>
-                <Input
-                  id="usernameInput"
-                  name="usernameInput"
-                  defaultValue={isEditMode ? contactToEdit?.username || "" : ""}
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="username-1">Phone number</Label>
-                <Input
-                  id="phoneInput"
-                  name="phoneInput"
-                  type="tel"
-                  defaultValue={
-                    isEditMode ? contactToEdit?.phonenumber || "" : ""
-                  }
-                />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="username-1">Adresse</Label>
-                <Input
-                  id="adresseInput"
-                  name="adresseInput"
-                  defaultValue={isEditMode ? contactToEdit?.adresse || "" : ""}
-                />
-              </div>
+          <form onSubmit={handleFormSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="usernameInput">Nom d'utilisateur</Label>
+              <Input
+                id="usernameInput"
+                name="usernameInput"
+                defaultValue={isEditMode ? contactToEdit?.username || "" : ""}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phoneInput">Numéro de téléphone</Label>
+              <Input
+                id="phoneInput"
+                name="phoneInput"
+                type="tel"
+                defaultValue={
+                  isEditMode ? contactToEdit?.phonenumber || "" : ""
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="adresseInput">Adresse</Label>
+              <Input
+                id="adresseInput"
+                name="adresseInput"
+                defaultValue={isEditMode ? contactToEdit?.adresse || "" : ""}
+              />
             </div>
             <DialogFooter>
               <DialogClose asChild>
@@ -160,10 +163,12 @@ export default function Home() {
                   variant="outline"
                   onClick={handleCloseFormDialog}
                 >
-                  Cancel
+                  Annuler
                 </Button>
               </DialogClose>
-              <Button type="submit">{isEditMode ? "Save" : "Add"}</Button>
+              <Button type="submit">
+                {isEditMode ? "Enregistrer" : "Ajouter"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -189,42 +194,50 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      <h1>Contacts</h1>
-      {loading ? (
-        <div>Chargement...</div>
-      ) : contacts.length === 0 ? (
-        <div>Aucun contact enregistré</div>
-      ) : (
-        <ul>
-          {contacts.map((contact) => (
-            <li key={contact._id}>
-              <strong>{contact.username}</strong>
-              <br />
-              Téléphone : {contact.phonenumber}
-              <br />
-              Adresse : {contact.adresse}
-              <br />
-              Propriétaire : {contact.ownerEmail}
-              <br />
-              Créé le : {new Date(contact.createdAt).toLocaleString()}
-              <Button
-                variant="outline"
-                onClick={() => openEditDialog(contact)}
-              >
-                Edit
-              </Button>
-              <Button
-                onClick={() => {
-                  setContactToEdit(contact);
-                  setDeleteDialogOpen(true);
-                }}
-              >
-                supprimer
-              </Button>
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* Liste des contacts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {loading ? (
+          <div>Chargement...</div>
+        ) : contacts.length === 0 ? (
+          <div>Aucun contact enregistré</div>
+        ) : (
+          contacts.map((contact) => (
+            <Card key={contact._id} className="p-4">
+              <CardHeader>
+                <CardTitle>{contact.username}</CardTitle>
+                <CardDescription>
+                  Téléphone : {contact.phonenumber}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Adresse : {contact.adresse}</p>
+                <p>Propriétaire : {contact.ownerEmail}</p>
+                <p>
+                  Créé le :{" "}
+                  {new Date(contact.createdAt).toLocaleString()}
+                </p>
+                <div className="flex justify-between mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => openEditDialog(contact)}
+                  >
+                    Modifier
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      setContactToEdit(contact);
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    Supprimer
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
     </div>
   );
 }
