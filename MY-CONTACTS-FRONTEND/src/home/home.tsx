@@ -29,9 +29,11 @@ export default function Home() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contactToEdit, setContactToEdit] = useState<Contact | null>(null);
+
+  const isEditMode = contactToEdit !== null;
 
   useEffect(() => {
     UserService.getAllContact()
@@ -44,45 +46,52 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  async function handleAddContact(
+  async function handleFormSubmit(
     event: React.FormEvent<AddContactFormElement>
   ) {
     event.preventDefault();
     const username = event.currentTarget.elements.usernameInput.value;
     const phonenumber = event.currentTarget.elements.phoneInput.value;
     const adresse = event.currentTarget.elements.adresseInput.value;
+
     try {
-      await UserService.addContact(username, phonenumber, adresse);
+      if (isEditMode && contactToEdit) {
+        await UserService.editContact(
+          contactToEdit._id,
+          username,
+          phonenumber,
+          adresse
+        );
+      } else {
+        await UserService.addContact(username, phonenumber, adresse);
+      }
+
       const response = await UserService.getAllContact();
       setContacts(response.data);
-      closeButtonRef.current?.click();
+      handleCloseFormDialog();
     } catch (err) {
-      console.error("Erreur lors de l'ajout du contact", err);
+      console.error(
+        `Erreur lors de ${
+          isEditMode ? "la modification" : "l'ajout"
+        } du contact`,
+        err
+      );
     }
   }
 
-  async function handlEditContact(
-    event: React.FormEvent<AddContactFormElement>
-  ) {
-    event.preventDefault();
-    if (!contactToEdit) return;
-    const username = event.currentTarget.elements.usernameInput.value;
-    const phonenumber = event.currentTarget.elements.phoneInput.value;
-    const adresse = event.currentTarget.elements.adresseInput.value;
-    try {
-      await UserService.editContact(
-        contactToEdit._id,
-        username,
-        phonenumber,
-        adresse
-      );
-      const response = await UserService.getAllContact();
-      setContacts(response.data);
-      setEditDialogOpen(false);
-      setContactToEdit(null);
-    } catch (err) {
-      console.error("Erreur lors de la modification du contact", err);
-    }
+  function handleCloseFormDialog() {
+    setFormDialogOpen(false);
+    setContactToEdit(null);
+  }
+
+  function openAddDialog() {
+    setContactToEdit(null);
+    setFormDialogOpen(true);
+  }
+
+  function openEditDialog(contact: Contact) {
+    setContactToEdit(contact);
+    setFormDialogOpen(true);
   }
 
   async function handlDeleteContact() {
@@ -96,61 +105,32 @@ export default function Home() {
 
   return (
     <div>
-      <Dialog>
+      {/* Dialog pour Suprimer */}
+      <Dialog open={formDialogOpen} onOpenChange={setFormDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline">Ajouter un contact</Button>
+          <Button variant="outline" onClick={openAddDialog}>
+            Ajouter un contact
+          </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Ajouter un contact</DialogTitle>
+            <DialogTitle>
+              {isEditMode ? "Modifier un contact" : "Ajouter un contact"}
+            </DialogTitle>
             <DialogDescription>
-              Remplissez les informations pour ajouter un contact
+              {isEditMode
+                ? "Modifiez les informations du contact"
+                : "Remplissez les informations pour ajouter un contact"}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleAddContact}>
-            <div className="grid gap-4">
-              <div className="grid gap-3">
-                <Label htmlFor="username-1">Username</Label>
-                <Input id="usernameInput" name="usernameInput" />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="username-1">Phone number</Label>
-                <Input id="phoneInput" name="phoneInput" type="tel" />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="username-1">Adresse</Label>
-                <Input id="adresseInput" name="adresseInput" />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button ref={closeButtonRef} variant="outline">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button type="submit">Add</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog pour Suprimer */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Modifier un contact</DialogTitle>
-            <DialogDescription>
-              Modifiez les informations du contact
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handlEditContact}>
+          <form onSubmit={handleFormSubmit}>
             <div className="grid gap-4">
               <div className="grid gap-3">
                 <Label htmlFor="username-1">Username</Label>
                 <Input
                   id="usernameInput"
                   name="usernameInput"
-                  defaultValue={contactToEdit?.username || ""}
+                  defaultValue={isEditMode ? contactToEdit?.username || "" : ""}
                 />
               </div>
               <div className="grid gap-3">
@@ -159,7 +139,9 @@ export default function Home() {
                   id="phoneInput"
                   name="phoneInput"
                   type="tel"
-                  defaultValue={contactToEdit?.phonenumber || ""}
+                  defaultValue={
+                    isEditMode ? contactToEdit?.phonenumber || "" : ""
+                  }
                 />
               </div>
               <div className="grid gap-3">
@@ -167,31 +149,32 @@ export default function Home() {
                 <Input
                   id="adresseInput"
                   name="adresseInput"
-                  defaultValue={contactToEdit?.adresse || ""}
+                  defaultValue={isEditMode ? contactToEdit?.adresse || "" : ""}
                 />
               </div>
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button ref={closeButtonRef} variant="outline">
+                <Button
+                  ref={closeButtonRef}
+                  variant="outline"
+                  onClick={handleCloseFormDialog}
+                >
                   Cancel
                 </Button>
               </DialogClose>
-              <Button type="submit">Save</Button>
+              <Button type="submit">{isEditMode ? "Save" : "Add"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      
       {/* Dialog pour éditer */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Suprimer un contact</DialogTitle>
-            <DialogDescription>
-              Suprimer le contact
-            </DialogDescription>
+            <DialogDescription>Suprimer le contact</DialogDescription>
           </DialogHeader>
           <form onSubmit={handlDeleteContact}>
             <DialogFooter>
@@ -226,10 +209,7 @@ export default function Home() {
               Créé le : {new Date(contact.createdAt).toLocaleString()}
               <Button
                 variant="outline"
-                onClick={() => {
-                  setContactToEdit(contact);
-                  setEditDialogOpen(true);
-                }}
+                onClick={() => openEditDialog(contact)}
               >
                 Edit
               </Button>
