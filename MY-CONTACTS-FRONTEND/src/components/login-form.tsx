@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import AuthService from "../service/auth.service";
 import { useNavigate } from "react-router";
-
+import { toast } from "sonner";
 interface LoginFormElements extends HTMLFormControlsCollection {
   usernameInput: HTMLInputElement;
   passwordInput: HTMLInputElement;
@@ -39,13 +39,34 @@ export function LoginForm({
 
     try {
       const response = await AuthService.login(username, password);
-      console.log("login success:", response);
       navigate(`/`);
     } catch (err: any) {
-      console.error("login error:", err);
-      alert(
-        err?.response?.data?.message || err?.message || "Erreur lors du login"
-      );
+      if (err?.response?.status) {
+        switch (err.response.status) {
+          case 401:
+            toast("Erreur de connexion", {
+              description: "Identifiants incorrects. Veuillez réessayer.",
+            });
+            break;
+          case 500:
+            toast("Erreur serveur", {
+              description:
+                "erreur interne",
+            });
+            break;
+          default:
+            toast("Erreur", {
+              description:
+                err?.response?.data?.message ||
+                "Une erreur inattendue est survenue.",
+            });
+            break;
+        }
+      } else {
+        toast("Erreur", {
+          description: "Impossible de se connecter au serveur.",
+        });
+      }
     }
   }
   return (

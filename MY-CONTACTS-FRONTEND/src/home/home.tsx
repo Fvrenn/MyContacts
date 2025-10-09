@@ -225,7 +225,6 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p>Adresse : {contact.adresse}</p>
-                <p>Propriétaire : {contact.ownerEmail}</p>
                 <p>
                   Créé le :{" "}
                   {new Date(contact.createdAt).toLocaleString()}

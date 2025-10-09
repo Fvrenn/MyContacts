@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import AuthService from "../service/auth.service";
 import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 interface SignupFormElements extends HTMLFormControlsCollection {
   usernameInput: HTMLInputElement;
@@ -38,16 +39,31 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     try {
       if (password == confirmPassword) {
         const response = await AuthService.register(username, email, password);
-        console.log("register success:", response);
         navigate(`/Login`);
       } else {
         console.error(" il faut deux mdp pareille ");
       }
     } catch (err: any) {
-      console.error("login error:", err);
-      alert(
-        err?.response?.data?.message || err?.message || "Erreur lors du login"
-      );
+      if (err?.response?.status) {
+        switch (err.response.status) {
+          case 500:
+            toast("Erreur serveur", {
+              description: "erreur interne",
+            });
+            break;
+          default:
+            toast("Erreur", {
+              description:
+                err?.response?.data?.message ||
+                "Une erreur inattendue est survenue.",
+            });
+            break;
+        }
+      } else {
+        toast("Erreur", {
+          description: "Impossible de se connecter au serveur.",
+        });
+      }
     }
   }
   return (
