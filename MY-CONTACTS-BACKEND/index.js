@@ -8,6 +8,9 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const contact = require('./routes/contact');
 const me = require('./routes/me');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('../openapi_3.1.yml');
 
 app.use(cors());
 app.use(express.json());
@@ -17,7 +20,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 app.use('/', contact);
 app.use('/', me);
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })

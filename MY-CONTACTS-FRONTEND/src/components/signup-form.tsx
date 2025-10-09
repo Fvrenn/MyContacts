@@ -48,12 +48,12 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         switch (err.response.status) {
           case 409:
             toast("Erreur serveur", {
-              description: "Cet email est déjà utilisé",
+              description: err?.response?.data?.error || "Conflit",
             });
             break;
           case 500:
             toast("Erreur serveur", {
-              description: "erreur interne",
+              description: err?.response?.data?.error,
             });
             break;
           default:

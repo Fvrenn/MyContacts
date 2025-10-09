@@ -16,6 +16,10 @@ exports.register = async (req) => {
   if (existingUser) {
     return { status: 409, body: { error: "Cet email est déjà utilisé" } };
   }
+  const existingUsername = await User.findOne({ username });
+  if (existingUsername) {
+    return { status: 409, body: { error: "Cet identifiant est déjà utilisé" } };
+  }
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = new User({ username, password: hashedPassword, email });
   await user.save();

@@ -45,13 +45,12 @@ export function LoginForm({
         switch (err.response.status) {
           case 401:
             toast("Erreur de connexion", {
-              description: "Identifiants incorrects. Veuillez réessayer.",
+              description: err?.response?.data?.error
             });
             break;
           case 500:
             toast("Erreur serveur", {
-              description:
-                "erreur interne",
+              description: err?.response?.data?.error
             });
             break;
           default:
