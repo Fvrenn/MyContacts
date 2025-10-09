@@ -2,13 +2,20 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../model/user.model");
 
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 exports.register = async (req) => {
   const { email, username, password } = req.body;
+  if (!isValidEmail(email)) {
+    return { status: 400, body: { error: "Email invalide. Veuillez fournir un email valide." } };
+  }
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     return { status: 409, body: { error: "Cet email est déjà utilisé" } };
   }
-
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = new User({ username, password: hashedPassword, email });
   await user.save();
