@@ -1,262 +1,345 @@
 openapi: 3.0.4
 info:
-  title: API Title
+  title: MyContacts API
   version: '1.0'
+  description: API pour gérer les contacts utilisateurs
 servers:
-  - url: http://0.0.0.0:3000
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 paths:
-  /me:
-    get:
-      summary: Récupérer les informations de l'utilisateur connecté
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Informations de l'utilisateur
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          description: Non authentifié
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Erreur serveur
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /auth/login:
     post:
-      summary: Permet de s'authentifier.
+      summary: Permet de s'authentifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              username: Tim
+              password: Azerty
       responses:
         '200':
           description: Authentification réussie
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                example:
-                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              example:
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         '401':
-          description: Échec de l'authentification
+          description: Echec de l'authentification
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              example:
+                error: "Echec de l'authentification"
+        '500':
+          description: Erreur serveur
+          content:
+            application/json:
+              example:
+                error: "Message d'erreur"
+                code: "SERVER_ERROR"
+                
   /auth/register:
     post:
-      summary: Permet de s'inscrire.
+      summary: Permet de créer un nouveau compte utilisateur
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              email: tim@tim.com
+              username: Tim
+              password: Azerty
       responses:
         '201':
           description: Inscription réussie
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: Inscription réussite
+              example:
+                message: "Inscription réussie"
+        '400':
+          description: Email invalide
+          content:
+            application/json:
+              example:
+                error: "Email invalide. Veuillez fournir un email valide."
+        '409':
+          description: Email ou identifiant déjà utilisé
+          content:
+            application/json:
+              examples:
+                email_exists:
+                  value:
+                    error: "Cet email est déjà utilisé"
+                username_exists:
+                  value:
+                    error: "Cet identifiant est déjà utilisé"
         '500':
           description: Erreur serveur
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              example:
+                error: "Message d'erreur"
+                code: "SERVER_ERROR"
+
   /contact:
     post:
-      summary: Ajouter un contact
+      summary: Ajouter un nouveau contact
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              username: tim
+              phonenumber: "07 23 13 59 83"
+              adresse: "3 rue du truc"
       responses:
         '201':
-          description: Contact ajouté
+          description: Contact ajouté avec succès
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: Contact ajoutée
+              example:
+                message: "Contact ajoutée"
         '401':
-          description: Non authentifié
+          description: Token manquant ou invalide
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              examples:
+                token_missing:
+                  value:
+                    error: "Accès refuser"
+                token_invalid:
+                  value:
+                    error: "token invalide"
         '500':
           description: Erreur serveur
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              example:
+                error: "Message d'erreur"
+                code: "SERVER_ERROR"
+                
     get:
-      summary: Récupérer les contacts de l'utilisateur
+      summary: Récupérer tous les contacts de l'utilisateur connecté
+      security:
+        - BearerAuth: []
       responses:
         '200':
-          description: Liste des contacts
+          description: Liste des contacts récupérée avec succès
           content:
             application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Contact'
+              example:
+                - _id: "60f7b3b3b3b3b3b3b3b3b3b3"
+                  username: tim
+                  phonenumber: "07 23 13 59 83"
+                  adresse: "3 rue du truc"
+                  ownerEmail: "tim@tim.com"
+                  createdAt: "2021-07-21T10:30:00.000Z"
         '401':
-          description: Non authentifié
+          description: Token manquant ou invalide
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              examples:
+                token_missing:
+                  value:
+                    error: "Accès refuser"
+                token_invalid:
+                  value:
+                    error: "token invalide"
         '500':
           description: Erreur serveur
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              example:
+                error: "Message d'erreur"
+                code: "SERVER_ERROR"
+
   /contact/{id}:
     get:
-      summary: Récupérer un contact par son identifiant
+      summary: Récupérer un contact spécifique par son ID
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
+          description: ID du contact
           schema:
             type: string
       responses:
         '200':
-          description: Contact récupéré
+          description: Contact récupéré avec succès
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Contact'
+              example:
+                _id: "60f7b3b3b3b3b3b3b3b3b3b3"
+                username: tim
+                phonenumber: "07 23 13 59 83"
+                adresse: "3 rue du truc"
+                ownerEmail: "tim@tim.com"
+                createdAt: "2021-07-21T10:30:00.000Z"
         '401':
-          description: Non authentifié
+          description: Token manquant ou invalide
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              examples:
+                token_missing:
+                  value:
+                    error: "Accès refuser"
+                token_invalid:
+                  value:
+                    error: "token invalide"
         '403':
           description: Accès refusé
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              example:
+                message: "Accès refusé: vous n'êtes pas autorisé à voir ce contact"
         '500':
           description: Erreur serveur
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              example:
+                error: "Message d'erreur"
+                code: "SERVER_ERROR"
+
     patch:
-      summary: Modifier un contact
+      summary: Modifier un contact existant
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
+          description: ID du contact à modifier
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              username: tim
+              phonenumber: "07 23 13 59 83"
+              adresse: "3 rue du truc"
       responses:
         '200':
-          description: Contact modifié
+          description: Contact modifié avec succès
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  contact:
-                    $ref: '#/components/schemas/Contact'
-                example:
-                  message: Contact modifié avec succès
-                  contact:
-                    username: tim
-                    phonenumber: 07 23 13 59 83
-                    adresse: 3 rue du truc
+              example:
+                message: "Contact modifié avec succès"
+                contact:
+                  _id: "60f7b3b3b3b3b3b3b3b3b3b3"
+                  username: tim
+                  phonenumber: "07 23 13 59 83"
+                  adresse: "3 rue du truc"
+                  ownerEmail: "tim@tim.com"
+                  createdAt: "2021-07-21T10:30:00.000Z"
         '401':
-          description: Non authentifié
+          description: Token manquant ou invalide
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              examples:
+                token_missing:
+                  value:
+                    error: "Accès refuser"
+                token_invalid:
+                  value:
+                    error: "token invalide"
         '403':
           description: Accès refusé
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              example:
+                message: "Accès refusé: vous n'êtes pas autorisé à modifier ce contact"
         '500':
           description: Erreur serveur
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              example:
+                error: "Message d'erreur"
+                code: "SERVER_ERROR"
+
     delete:
       summary: Supprimer un contact
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
+          description: ID du contact à supprimer
           schema:
             type: string
       responses:
         '200':
-          description: Contact supprimé
+          description: Contact supprimé avec succès
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: Contact supprimé avec succès
+              example:
+                message: "Contact supprimé avec succès"
         '401':
-          description: Non authentifié
+          description: Token manquant ou invalide
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              examples:
+                token_missing:
+                  value:
+                    error: "Accès refuser"
+                token_invalid:
+                  value:
+                    error: "token invalide"
         '403':
           description: Accès refusé
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+              example:
+                message: "Accès refusé: vous n'êtes pas autorisé à supprimer ce contact"
         '500':
           description: Erreur serveur
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-components:
-  schemas:
-    Contact:
-      type: object
-      properties:
-        username:
-          type: string
-        phonenumber:
-          type: string
-        adresse:
-          type: string
-        ownerEmail:
-          type: string
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-        code:
-          type: string
-      example:
-        error: "Accès refusé"
-        code: "FORBIDDEN"
+              example:
+                error: "Message d'erreur"
+                code: "SERVER_ERROR"
+
+  /me:
+    get:
+      summary: Récupérer les informations de l'utilisateur connecté
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Informations utilisateur récupérées avec succès
+          content:
+            application/json:
+              example:
+                _id: "60f7b3b3b3b3b3b3b3b3b3b3"
+                username: Tim
+                email: "tim@tim.com"
+                createdAt: "2021-07-21T10:30:00.000Z"
+        '401':
+          description: Token manquant ou invalide
+          content:
+            application/json:
+              examples:
+                token_missing:
+                  value:
+                    error: "Accès refuser"
+                token_invalid:
+                  value:
+                    error: "token invalide"
+        '500':
+          description: Erreur serveur
+          content:
+            application/json:
+              example:
+                error: "Message d'erreur"
+                code: "SERVER_ERROR"

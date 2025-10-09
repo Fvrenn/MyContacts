@@ -10,7 +10,10 @@ function isValidEmail(email) {
 exports.register = async (req) => {
   const { email, username, password } = req.body;
   if (!isValidEmail(email)) {
-    return { status: 400, body: { error: "Email invalide. Veuillez fournir un email valide." } };
+    return {
+      status: 400,
+      body: { error: "Email invalide. Veuillez fournir un email valide." },
+    };
   }
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -29,12 +32,11 @@ exports.register = async (req) => {
 exports.login = async (req) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username });
-  if (!user) {
-    return { status: 401, body: { error: "Echec de l'authentification" } };
-  }
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) {
-    return { status: 401, body: { error: "Echec de l'authentification" } };
+  if (!user || !passwordMatch) {
+    return {
+      status: 401,
+      body: { error: "Identifiant ou mot de passe incorrect" },
+    };
   }
   const token = jwt.sign({ email: user.email }, process.env.SECRET_KEY, {
     expiresIn: "1h",

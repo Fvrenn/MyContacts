@@ -23,6 +23,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 interface AddContactFormElements extends HTMLFormControlsCollection {
   usernameInput: HTMLInputElement;
@@ -62,6 +63,14 @@ export default function Home() {
     const username = event.currentTarget.elements.usernameInput.value;
     const phonenumber = event.currentTarget.elements.phoneInput.value;
     const adresse = event.currentTarget.elements.adresseInput.value;
+
+    if (phonenumber.length > 20) {
+      toast("Erreur", {
+        description:
+          "Le numéro de téléphone ne peut pas dépasser 20 caractères.",
+      });
+      return;
+    }
 
     try {
       if (isEditMode && contactToEdit) {
@@ -225,10 +234,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <p>Adresse : {contact.adresse}</p>
-                <p>
-                  Créé le :{" "}
-                  {new Date(contact.createdAt).toLocaleString()}
-                </p>
+                <p>Créé le : {new Date(contact.createdAt).toLocaleString()}</p>
                 <div className="flex justify-between mt-4">
                   <Button
                     variant="outline"
