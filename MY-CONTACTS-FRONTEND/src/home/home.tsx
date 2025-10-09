@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import UserService from "../service/user.service";
+import AuthService from "../service/auth.service";
+import { useNavigate } from "react-router-dom";
 import type { Contact } from "@/lib/interface/contact.interface";
 import {
   Dialog,
@@ -35,10 +37,10 @@ export default function Home() {
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [contactToEdit, setContactToEdit] = useState<Contact | null>(null);
+  const navigate = useNavigate();
 
   const isEditMode = contactToEdit !== null;
 
@@ -105,8 +107,20 @@ export default function Home() {
     }
   }
 
+  function handleLogout() {
+    AuthService.logout();
+    navigate("/login");
+  }
+
   return (
     <div>
+      {/* Bouton de déconnexion */}
+      <div className="my-4">
+        <Button variant="destructive" onClick={handleLogout}>
+          Déconnexion
+        </Button>
+      </div>
+
       {/* Bouton Ajouter un contact */}
       <div className="my-4">
         <Button variant="outline" onClick={() => setFormDialogOpen(true)}>
