@@ -38,7 +38,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       event.currentTarget.elements.confirmPasswordInput.value;
     try {
       if (password == confirmPassword) {
-        const response = await AuthService.register(username, email, password);
+        await AuthService.register(username, email, password);
         navigate(`/Login`);
       } else {
         console.error(" il faut deux mdp pareille ");

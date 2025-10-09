@@ -38,7 +38,7 @@ export function LoginForm({
     const password = event.currentTarget.elements.passwordInput.value;
 
     try {
-      const response = await AuthService.login(username, password);
+      await AuthService.login(username, password);
       navigate(`/`);
     } catch (err: any) {
       if (err?.response?.status) {
