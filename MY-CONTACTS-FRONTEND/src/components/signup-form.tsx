@@ -46,6 +46,11 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     } catch (err: any) {
       if (err?.response?.status) {
         switch (err.response.status) {
+          case 409:
+            toast("Erreur serveur", {
+              description: "Cet email est déjà utilisé",
+            });
+            break;
           case 500:
             toast("Erreur serveur", {
               description: "erreur interne",
