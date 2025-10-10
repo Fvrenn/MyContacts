@@ -84,7 +84,7 @@ L'application sera accessible sur `http://localhost:5173`
 
 ## 🌐 Liens de déploiement
 
-- **Frontend** : https://vercel.com/fvrenns-projects/my-contacts
+- **Frontend** : https://my-contacts-amber.vercel.app
 - **Backend API** : https://mycontacts-p9kf.onrender.com
 - **Documentation API** : https://mycontacts-p9kf.onrender.com/api-docs
 L'API est documentée selon la spécification OpenAPI 3.0. Le fichier de spécification est disponible dans `openapi_3.1.yml`.
